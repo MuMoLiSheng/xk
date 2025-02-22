@@ -1,6 +1,6 @@
-//该文件是xiaokeli插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
-//该文件是xiaokeli插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
-//该文件是xiaokeli插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
 
 import AvatarUtil from './AvatarUtil.js'
 import lodash from 'lodash'
@@ -43,7 +43,7 @@ const ProfileAvatar = {
     
     
     // 检查数据源//改
-    if (!avatar._source || !['enka', 'change', 'miao', 'mgg', 'hutao', 'homo','mys'].includes(avatar._source)) {
+    if (!avatar._source || !['enka', 'change', 'miao', 'mgg', 'hutao', 'homo', 'mysPanel','mys'].includes(avatar._source)) {
       return false
     }
     // 检查武器及天赋

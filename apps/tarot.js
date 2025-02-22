@@ -66,7 +66,7 @@ export class tarot extends plugin {
     console.log(counterValue, typeof counterValue)
 
     if (parseInt(counterValue) >= limit) {
-      return false;
+      return false
     }
 
     await redis.incr(this.key)
@@ -79,7 +79,7 @@ export class tarot extends plugin {
       return await this.reply('今天的占卜已达上限了哦，明天再来看看吧…')
     }
     const card = lodash.sample(cards)
-const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E5%A1%94%E7%BD%97%E7%89%8C/${card.type}/${card.pic}.webp`
+    const imageUrl = `https://gitee.com/Mu_Ling_Er/xk/raw/master/data/tarot/${card.type}/${card.pic}.webp`
     const options = [`正位: ${card.meaning.up}`, `逆位: ${card.meaning.down}`]
     const selection = options[Math.floor(Math.random() * options.length)]
     let [position, meaning] = selection.split(': ')
@@ -103,9 +103,9 @@ const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E
     <h2>${card.name_cn}</h2>
     <p>${card.name_en}</p>
     <div class="content" style="margin: 0 auto; padding: 12px 12px; height: 49rem; max-width: 980px; max-height: 1024px; background: rgba(255, 255, 255, 0.6); border-radius: 22px; backdrop-filter: blur(3px); box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3); writing-mode: vertical-rl; text-orientation: mixed;">
-    <p style="font-size: 20px;">${meaning}</p>
+    <p style="font-size: 20px;">${position === '正位' ? card.description.updescription : card.description.downdescription}</p>
     </div>
-    <h2>${position}</h2>
+    <h2>「${position}」${meaning}</h2>
     <br>
     <p>Create By 可歌岁月</p>
   </div>
@@ -115,7 +115,7 @@ const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E
 </html> `
       await page.setContent(Html)
       const tarotimage = Buffer.from(await page.screenshot({ fullPage: true }))
-      e.reply([`「${position}」${card.name_cn}(${card.name_en})\n回应是：${meaning}`,segment.image(tarotimage)], false, { at : true })
+      e.reply([`「${position}」${card.name_cn}(${card.name_en})\n卡牌回应：${meaning}\n卡牌描述：${position === '正位' ? card.description.updescription : card.description.downdescription}`,segment.image(tarotimage)], false, { at : true })
     } catch (error) {
       logger.error(error)
     } finally {

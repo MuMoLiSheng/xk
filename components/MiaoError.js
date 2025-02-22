@@ -6,12 +6,12 @@ export default class MiaoError extends Error {
       super()
       this._message = message
     } else {
-      super(message);
+      super(message)
     }
   }
 
   get message() {
-    return this._message ? this._message : super.message;
+    return this._message ? this._message : super.message
   }
 
 }

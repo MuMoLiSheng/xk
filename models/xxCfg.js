@@ -1,22 +1,22 @@
-import YAML from "yaml";
-import fs from "node:fs";
-import chokidar from "chokidar";
-import lodash from "lodash";
-import { promisify } from 'node:util';
+import YAML from "yaml"
+import fs from "node:fs"
+import chokidar from "chokidar"
+import lodash from "lodash"
+import { promisify } from 'node:util'
 
 /** 配置文件 直接借鉴yunzai配置代码 */
 class XsCfg {
   constructor() {
     /** 默认设置 */
-    this.defSetPath = "./plugins/xk/defSet/";
-    this.defSet = {};
+    this.defSetPath = "./plugins/xk/defSet/"
+    this.defSet = {}
 
     /** 用户设置 */
-    this.configPath = "./plugins/xk/config/";
-    this.config = {};
+    this.configPath = "./plugins/xk/config/"
+    this.config = {}
 
     /** 监听文件 */
-    this.watcher = { config: {}, defSet: {} };
+    this.watcher = { config: {}, defSet: {} }
   }
 
   /**
@@ -24,21 +24,21 @@ class XsCfg {
    * @param name 配置文件名称
    */
   getdefSet(app, name) {
-    return this.getYaml(app, name, "defSet");
+    return this.getYaml(app, name, "defSet")
   }
 
   /** 用户配置 */
   getConfig(app, name) {
-    let ignore = [];
+    let ignore = []
 
     if (ignore.includes(`${app}.${name}`)) {
-      return this.getYaml(app, name, "config");
+      return this.getYaml(app, name, "config")
     }
 
     return {
       ...this.getdefSet(app, name),
       ...this.getYaml(app, name, "config"),
-    };
+    }
   }
 
   /**
@@ -48,48 +48,47 @@ class XsCfg {
    * @param type 默认跑配置-defSet，用户配置-config
    */
   getYaml(app, name, type) {
-    let file = this.getFilePath(app, name, type);
-    let key = `${app}.${name}`;
+    let file = this.getFilePath(app, name, type)
+    let key = `${app}.${name}`
 
-    if (this[type][key]) return this[type][key];
+    if (this[type][key]) return this[type][key]
 
-    this[type][key] = YAML.parse(fs.readFileSync(file, "utf8"));
+    this[type][key] = YAML.parse(fs.readFileSync(file, "utf8"))
 
-    this.watch(file, app, name, type);
+    this.watch(file, app, name, type)
 
-    return this[type][key];
+    return this[type][key]
   }
 
   getFilePath(app, name, type) {
-    if (type == "defSet") return `${this.defSetPath}${app}/${name}.yaml`;
-    else return `${this.configPath}${app}.${name}.yaml`;
+    if (type == "defSet") return `${this.defSetPath}${app}/${name}.yaml`
+    else return `${this.configPath}${app}.${name}.yaml`
   }
 
   /** 监听配置文件 */
   watch(file, app, name, type = "defSet") {
-    let key = `${app}.${name}`;
+    let key = `${app}.${name}`
 
-    if (this.watcher[type][key]) return;
+    if (this.watcher[type][key]) return
 
-    const watcher = chokidar.watch(file);
+    const watcher = chokidar.watch(file)
     watcher.on("change", (path) => {
-      delete this[type][key];
-      logger.mark(`[修改配置文件][${type}][${app}][${name}]`);
+      delete this[type][key]
+      logger.mark(`[修改配置文件][${type}][${app}][${name}]`)
       if (this[`change_${app}${name}`]) {
-        this[`change_${app}${name}`]();
+        this[`change_${app}${name}`]()
       }
-    });
-
-    this.watcher[type][key] = watcher;
+    })
+    this.watcher[type][key] = watcher
   }
 
   saveSet(app, name, type, data) {
-    let file = this.getFilePath(app, name, type);
+    let file = this.getFilePath(app, name, type)
     if (lodash.isEmpty(data)) {
-      fs.existsSync(file) && fs.unlinkSync(file);
+      fs.existsSync(file) && fs.unlinkSync(file)
     } else {
-      let yaml = YAML.stringify(data);
-      fs.writeFileSync(file, yaml, "utf8");
+      let yaml = YAML.stringify(data)
+      fs.writeFileSync(file, yaml, "utf8")
     }
   }
 
@@ -120,30 +119,30 @@ class XsCfg {
   async saveBiliCk(data) {
     let dir = `./data/BilibiliCookie/`
     let file = dir + `bili_Ck.yaml`
-    let addData = data.replace(/\s/g, '').trim();
+    let addData = data.replace(/\s/g, '').trim()
     if (lodash.isEmpty(addData)) {
       fs.existsSync(file) && fs.unlinkSync(file)
     } else {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true }) // 创建目录，包括父目录
       }
-      let yaml = YAML.stringify(addData);
+      let yaml = YAML.stringify(addData)
       fs.writeFileSync(file, yaml, 'utf8')
     }
   }
 
   /**获取Yunzai分支名*/
   async getYunzaiName() {
-    let yunzaiName = null;
-    const readFileAsync = promisify(fs.readFile);
+    let yunzaiName = null
+    const readFileAsync = promisify(fs.readFile)
     if (!yunzaiName) {
       yunzaiName = await readFileAsync('./package.json')
         .then(data => JSON.parse(data))
         .then(pmcfg => pmcfg?.name || 'Yunzai-Bot')
-        .catch(() => 'Yunzai-Bot');
+        .catch(() => 'Yunzai-Bot')
     }
-    return yunzaiName;
+    return yunzaiName
   }
 }
 
-export default new XsCfg();
+export default new XsCfg()

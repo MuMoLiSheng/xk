@@ -32,7 +32,7 @@ export class mysmb extends plugin {
                 /** 执行方法 */
                 fnc: 'mbwj'
             }, ]
-        });
+        })
     }
     async mys(e) {
        if(!fs.existsSync('./plugins/xk/models/default/ProfileAvatar_copy.js')){

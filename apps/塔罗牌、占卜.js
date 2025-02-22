@@ -3,13 +3,13 @@ import path from 'path'
 import chalk from "chalk"
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import puppeteer from "puppeteer"
+import puppeteer from 'puppeteer'
 import common from '../../../lib/common/common.js' 
 import { rulePrefix } from '../../StarRail-plugin/utils/common.js'
 import { xkPath } from '#xk.path'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export class TextMsg extends plugin {
     constructor() {
@@ -52,7 +52,7 @@ async function 抽塔罗牌(e) {
   const randomCard = tarot.cards[randomKey]
 
   // 获取塔罗牌的图片URL
-const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E5%A1%94%E7%BD%97%E7%89%8C/${randomCard.type}/${randomCard.pic}.webp`
+const imageUrl = `https://gitee.com/Mu_Ling_Er/xk/raw/master/data/tarot/${randomCard.type}/${randomCard.pic}.webp`
 
   // 创建塔罗牌的正位和逆位选项并随机选择一个选项
   const options = [`正位: ${randomCard.meaning.up}`, `逆位: ${randomCard.meaning.down}`]
@@ -78,9 +78,9 @@ const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E
     <h2>${randomCard.name_cn}</h2>
     <p>${randomCard.name_en}</p>
     <div class="content" style="margin: 0 auto; padding: 12px 12px; height: 49rem; max-width: 980px; max-height: 1024px; background: rgba(255, 255, 255, 0.6); border-radius: 22px; backdrop-filter: blur(3px); box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3); writing-mode: vertical-rl; text-orientation: mixed;">
-    <p style="font-size: 20px;">${meaning}</p>
+    <p style="font-size: 20px;">${position === '正位' ? randomCard.info.description : randomCard.info.reverseDescription}</p>
     </div>
-    <h2>${position}</h2>
+    <h2>「${position}」${meaning}</h2>
     <br>
     <p>Create By 可歌岁月</p>
   </div>
@@ -92,7 +92,7 @@ const imageUrl = `https://gitee.com/logier/logier-plugin/raw/master/resources/%E
 
     await page.setContent(Html)
     const tarotimage = Buffer.from(await page.screenshot({ fullPage: true }))
-    e.reply([`「${position}」${randomCard.name_cn}(${randomCard.name_en})\n回应是：${meaning}`,segment.image(tarotimage)], false, { at : true })
+    e.reply([`「${position}」${randomCard.name_cn} (${randomCard.name_en})\n卡牌回应：${meaning}\n卡牌描述：${position === '正位' ? randomCard.info.description : randomCard.info.reverseDescription}`,segment.image(tarotimage)], false, { at : true })
   } catch (error) {
     logger.error(error)
   } finally {
@@ -126,7 +126,7 @@ async function 占卜塔罗牌(e, replacedMsg = '') {
     const imageUrl = `${xkPath}/data/tarot/${randomCard.type}/${randomCard.pic}.png`
 
     const forwardMsg = [
-      `你抽到的第${i+1}张牌是 ${randomCard.name_cn} (${randomCard.name_en})\n\n${position === 'up' ? '正位' : '逆位'}:  ${randomCard.meaning[position]}\n\n卡牌描述： ${position === 'up' ? randomCard.info.description : randomCard.info.reverseDescription}`,
+      `你抽到的第${i+1}张牌是 ${randomCard.name_cn} (${randomCard.name_en})\n\n${position === 'up' ? '「正位」' : '「逆位」'}：${randomCard.meaning[position]}\n\n卡牌描述：${position === 'up' ? randomCard.info.description : randomCard.info.reverseDescription}`,
       segment.image(imageUrl)
     ]
 
@@ -162,14 +162,14 @@ async function getAllImageFiles(dirPath, imageFiles = []) {
         }
     }
 
-    return imageFiles;
+    return imageFiles
 }
 
 export async function getRandomUrl(imageUrls) {
     let imageUrl
 
     if (Array.isArray(imageUrls)) {
-        imageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+        imageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)]
     } else {
         imageUrl = imageUrls
     }
@@ -178,7 +178,7 @@ export async function getRandomUrl(imageUrls) {
         let imageFiles = await getAllImageFiles(imageUrl)
 
         if (imageFiles.length > 0) {
-            imageUrl = imageFiles[Math.floor(Math.random() * imageFiles.length)];
+            imageUrl = imageFiles[Math.floor(Math.random() * imageFiles.length)]
         }
     }
 
