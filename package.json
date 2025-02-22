@@ -1,0 +1,31 @@
+{
+  "name": "xk",
+  "version": "2.3.3",
+  "author": "mmls xk",
+  "description": "xk",
+  "type": "module",
+  "imports": {
+    "#xk": "./components/index.js",
+    "#xk.models": "./models/index.js",
+    "#xk.path": "./utils/path.js",
+    "#miao": "../miao-plugin/components/index.js",
+    "#miao.models": "../miao-plugin/models/index.js",
+    "#miao.path": "../miao-plugin/tools/path.js"
+  },
+  "scripts": {
+        "test": "mocha --exit"
+  },
+  "module": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "katex": "^0.16.0",
+    "markdown-it": "^13.0.1",
+    "markdown-it-texmath": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "cheerio": "1.0.0-rc.12",
+    "request": "^2.88.2"
+  }
+}
