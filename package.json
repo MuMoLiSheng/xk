@@ -7,10 +7,7 @@
   "imports": {
     "#xk": "./components/index.js",
     "#xk.models": "./models/index.js",
-    "#xk.path": "./utils/path.js",
-    "#miao": "../miao-plugin/components/index.js",
-    "#miao.models": "../miao-plugin/models/index.js",
-    "#miao.path": "../miao-plugin/tools/path.js"
+    "#xk.path": "./utils/path.js"
   },
   "scripts": {
         "test": "mocha --exit"
