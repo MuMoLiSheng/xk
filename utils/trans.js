@@ -1,6 +1,6 @@
-import { Data } from '../components/index.js'
-import lodash from 'lodash'
 import fs from 'node:fs'
+import lodash from 'lodash'
+import { Data } from '../components/index.js'
 
 let Trans = {
   init () {

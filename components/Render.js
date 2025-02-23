@@ -1,5 +1,5 @@
-import { Version, Cfg } from './index.js'
 import { xkPath } from '#xk.path'
+import { Version, Cfg } from './index.js'
 
 const Render = {
   async render (path, params, cfg) {

@@ -1,10 +1,10 @@
-import chalk from "chalk"
+import chalk from 'chalk'
 import lodash from 'lodash'
-import { Cfg, Common, Data, Version } from '#xk'
-import { exec } from 'child_process'
-import makemsg from '../../../lib/common/common.js'
-import { execSync } from 'child_process'
 import { xkPath } from '#xk.path'
+import { exec } from 'child_process'
+import { execSync } from 'child_process'
+import { Cfg, Common, Data, Version } from '#xk'
+import makemsg from '../../../lib/common/common.js'
 
 let keys = lodash.map(Cfg.getCfgSchemaMap(), (i) => i.key)
 let sysCfgReg = new RegExp(`^#可可设置\\s*(${keys.join('|')})?\\s*(.*)$`)
@@ -101,7 +101,7 @@ export class Admin extends plugin {
         e.reply('可可更新失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
         return true
       }
-      e.reply('可可更新成功，正在尝试重新启动Yunzai以应用更新...')
+      e.reply('可可更新成功，正在尝试重新启动以应用更新...')
       timer && clearTimeout(timer)
       Data.setCacheJSON('xk:restart-msg', {
         msg: '重启成功，新版可可已经生效',
@@ -115,11 +115,12 @@ export class Admin extends plugin {
         exec(command, function (error, stdout, stderr) {
           if (error) {
             e.reply('自动重启失败，请手动重启以应用新版可可。\nError code: ' + error.code + '\n' + error.stack + '\n')
-            Bot.logger.error(`重启失败\n${error.stack}`)
+            Bot.logger.error(`${chalk.rgb(240, 75, 60)(`[小可]重启失败\n${error.stack}`)}`)
             return true
           } else if (stdout) {
-            Bot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
-            Bot.logger.mark('停止后台运行命令：npm stop')
+            Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]重启成功，运行已转为后台，查看日志请用命令：npm run log`)}`)
+            Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]转为前台运行请用命令：pnpm ksr`)}`)
+            Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]停止后台运行命令：npm stop`)}`)
             process.exit()
           }
         })
@@ -137,7 +138,7 @@ export class Admin extends plugin {
     try {
       logAll = await execSync(cm, { encoding: 'utf-8', windowsHide: true })
     } catch (error) {
-      logger.error(error.toString())
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可]`) + error.toString()}`)
       this.reply(error.toString())
     }
     if (!logAll) return false
@@ -152,7 +153,7 @@ export class Admin extends plugin {
     let line = log.length
     log = log.join('\n\n')
     if (log.length <= 0) return ''
-    let end = ''
+    let end = '更多详细信息，请前往gitee查看\nhttps://github.com/MuMoLiSheng/xk'
     log = await makemsg.makeForwardMsg(this.e, [log, end], `${plugin}更新日志，共${line}条`)
     e.reply(log)
   }
@@ -267,7 +268,7 @@ export class Admin extends plugin {
 //       e.reply('可可更新失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
 //       return true
 //     }
-//     e.reply('可可更新成功，正在尝试重新启动Yunzai以应用更新...')
+//     e.reply('可可更新成功，正在尝试重新启动以应用更新...')
 //     timer && clearTimeout(timer)
 //     Data.setCacheJSON('xk:restart-msg', {
 //       msg: '重启成功，新版可可已经生效',
@@ -281,11 +282,12 @@ export class Admin extends plugin {
 //       exec(command, function (error, stdout, stderr) {
 //         if (error) {
 //           e.reply('自动重启失败，请手动重启以应用新版可可。\nError code: ' + error.code + '\n' + error.stack + '\n')
-//           Bot.logger.error(`重启失败\n${error.stack}`)
+//           Bot.logger.error(`${chalk.rgb(240, 75, 60)(`[小可]重启失败\n${error.stack}`)}`)
 //           return true
 //         } else if (stdout) {
-//           Bot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
-//           Bot.logger.mark('停止后台运行命令：npm stop')
+//           Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]重启成功，运行已转为后台，查看日志请用命令：npm run log`)}`)
+//           Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]转为前台运行请用命令：pnpm ksr`)}`)
+//           Bot.logger.mark(`${chalk.rgb(255, 225, 255)(`[小可]停止后台运行命令：npm stop`)}`)
 //           process.exit()
 //         }
 //       })
@@ -303,7 +305,7 @@ export class Admin extends plugin {
 //   try {
 //     logAll = await execSync(cm, { encoding: 'utf-8', windowsHide: true })
 //   } catch (error) {
-//     logger.error(error.toString())
+//     logger.error(`${chalk.rgb(240, 75, 60)(`[小可]`) + error.toString()}`)
 //     this.reply(error.toString())
 //   }
 //   if (!logAll) return false

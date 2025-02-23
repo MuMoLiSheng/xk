@@ -1,14 +1,15 @@
 //容易爆验证码，谨慎使用，米游社的面板数据与enka的会有小数点后几位的小许偏差
-import ProfileList from '../models/copy/ProfileList.js'
 import fs from 'node:fs'
-import chalk from "chalk"
+import chalk from 'chalk'
 import { MysInfo } from '#xk'
 import { Restart } from '../../other/restart.js'
+import ProfileList from '../models/copy/ProfileList.js'
+import { Character } from '../../miao-plugin/models/index.js'
+import { Format } from '../../miao-plugin/components/index.js'
 import { getTargetUid } from '../../miao-plugin/apps/profile/ProfileCommon.js'
 import gs  from '../../miao-plugin/models/serv/api/MysPanelData.js'
 import sr from '../../miao-plugin/models/serv/api/MysPanelHSRData.js'
-import { Format } from '../../miao-plugin/components/index.js'
-import { Character } from '../../miao-plugin/models/index.js'
+
 
 export class mysmb extends plugin {
     constructor() {

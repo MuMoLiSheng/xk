@@ -1,5 +1,5 @@
-import lodash from 'lodash'
 import fs from 'node:fs'
+import lodash from 'lodash'
 import util from 'node:util'
 import { rootPath } from '../utils/path.js'
 

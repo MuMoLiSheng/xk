@@ -1,6 +1,6 @@
-import plugin from '../../../lib/plugins/plugin.js'
+import chalk from 'chalk'
 import lodash from 'lodash'
-import chalk from "chalk"
+import plugin from '../../../lib/plugins/plugin.js'
 
 export class dice extends plugin {
   constructor () {

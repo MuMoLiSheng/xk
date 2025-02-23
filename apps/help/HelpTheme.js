@@ -1,6 +1,7 @@
-import lodash from 'lodash'
+
 import fs from 'node:fs'
-import { Data } from "#xk"
+import { Data } from '#xk'
+import lodash from 'lodash'
 
 let HelpTheme = {
   async getThemeCfg (theme, exclude) {

@@ -1,10 +1,10 @@
-import plugin from "../../../lib/plugins/plugin.js"
-import lodash from "lodash"
-import chalk from "chalk"
-import xxCfg from "../models/xxCfg.js"
 import fs from "node:fs"
-import common from "../../../lib/common/common.js"
+import chalk from "chalk"
+import lodash from "lodash"
 import { ALL } from "node:dns"
+import setting from "../models/setting.js"
+import common from "../../../lib/common/common.js"
+import plugin from "../../../lib/plugins/plugin.js"
 
 let textArr = {}
 
@@ -37,7 +37,7 @@ export class gm extends plugin {
     })
     this.path = "./data/shortcutsJson/"
     /** 读取群管相关设置数据 */
-    this.gmSetData = xxCfg.getConfig("gm", "set")
+    this.gmSetData = setting.getConfig("gm", "set")
   }
 
   async init() {

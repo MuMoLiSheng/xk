@@ -1,5 +1,6 @@
-import { createRequire } from "module"
 import chalk from "chalk"
+import { createRequire } from "module"
+
 const require = createRequire(import.meta.url)
 const fs = require("fs")
 let json = {}

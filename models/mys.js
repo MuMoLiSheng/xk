@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import fetch from 'node-fetch'
 
 class mys{
@@ -7,7 +8,7 @@ async  tujian(isSr=false){
   if(isSr) url='https://api-static.mihoyo.com/common/blackboard/sr_wiki/v1/home/content/list?app_sn=sr_wiki&channel_id=17'
     let res = await fetch(url).then(res => res.json())
     if(!res) {
-      logger.error('米游社访问失败')
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可]米游社访问失败`)}`)
       return false
     }
     let children=res.data.list[0].children
@@ -116,7 +117,7 @@ async detail(id,isSr=false){
   if(isSr) url=`https://api-static.mihoyo.com/common/blackboard/sr_wiki/v1/content/info?app_sn=sr_wiki&content_id=${id}`
   let res = await fetch(url).then(res => res.json())
   if(!res) {
-      logger.error('米游社访问失败')
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可]米游社访问失败`)}`)
       return false
     }
   return res.data

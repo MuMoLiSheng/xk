@@ -1,6 +1,5 @@
-import plugin from "../../../lib/plugins/plugin.js"
 import chalk from "chalk"
-
+import plugin from "../../../lib/plugins/plugin.js"
 // 21点信息存放
 let blackjaceState = {}
 

@@ -1,8 +1,8 @@
-import plugin from "../../../lib/plugins/plugin.js"
-import lodash from "lodash"
 import chalk from "chalk"
-import { Common, Data } from "../components/index.js"
+import lodash from "lodash"
 import HelpTheme from "./help/HelpTheme.js"
+import plugin from "../../../lib/plugins/plugin.js"
+import { Common, Data } from "../components/index.js"
 
 export class GIhelp extends plugin {
   constructor() {

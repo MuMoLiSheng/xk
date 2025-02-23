@@ -1,7 +1,7 @@
-import { Data, Version } from '../components/index.js'
 import fs from 'node:fs'
 import Trans from './trans.js'
 import { rootPath } from './path.js'
+import { Data, Version } from '../components/index.js'
 
 let relpyPrivate = async function () {
 }

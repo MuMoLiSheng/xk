@@ -28,7 +28,7 @@ export default async function (puppeteer, name, data) {
 
     puppeteer.shoting.pop()
   } catch (error) {
-    logger.error(`图片生成失败:${name}:${error}`)
+    logger.error(`${chalk.rgb(240, 75, 60)(`[小可]图片生成失败:${name}:${error}`)}`)
     if (puppeteer.browser) {
       await puppeteer.browser.close().catch((err) => logger.error(err))
     }
@@ -38,13 +38,13 @@ export default async function (puppeteer, name, data) {
   }
 
   if (!buff) {
-    logger.error(`图片生成为空:${name}`)
+    logger.error(`${chalk.rgb(240, 75, 60)(`[小可]图片生成为空:${name}`)}`)
     return false
   }
 
   puppeteer.renderNum++
   let kb = (buff.length / 1024).toFixed(2) + 'kb'
-  logger.mark(`[图片生成][${name}][${puppeteer.renderNum}次] ${kb} ${logger.green(`${Date.now() - start}ms`)}`)
+  logger.mark(`${chalk.rgb(255, 225, 255)(`[小可][图片生成][${name}][${puppeteer.renderNum}次] ${kb} ${logger.green(`${Date.now() - start}ms`)}`)}`)
 
   puppeteer.restart()
 

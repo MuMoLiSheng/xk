@@ -1,13 +1,15 @@
-//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
-//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
-//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可莉面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可面板文件还原
+//该文件是xiaoke插件，替换过来的，如miao-plugin更新引发冲突。请使用：小可面板文件还原
 
-import AvatarUtil from './AvatarUtil.js'
 import lodash from 'lodash'
+import { Cfg } from '#miao'
+import Serv from '../serv/Serv.js'
+import AvatarUtil from './AvatarUtil.js'
 import CharImg from '../character/CharImg.js'
 
-import Serv from '../serv/Serv.js'
-import { Cfg } from '#miao'
+
+
 
 const ProfileAvatar = {
 

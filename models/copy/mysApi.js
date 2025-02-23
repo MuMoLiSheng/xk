@@ -1,7 +1,8 @@
 import md5 from 'md5'
+import chalk from 'chalk'
 import fetch from 'node-fetch'
-import cfg from '../../../../lib/config/config.js'
 import ApiTool from './apiTool.js'
+import cfg from '../../../../lib/config/config.js'
 
 const game_region = {
   gs: ['cn_gf01', 'cn_qd01', 'os_usa', 'os_euro', 'os_asia', 'os_cht'],
@@ -136,21 +137,21 @@ export default class MysApi {
     try {
       response = await fetch(url, param)
     } catch (error) {
-      logger.error(error.toString())
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可]` + error.toString())}`)
       return false
     }
 
     if (!response.ok) {
-      logger.error(`[米游社接口][${type}][${this.uid}] ${response.status} ${response.statusText}`)
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可][米游社接口][${type}][${this.uid}] ${response.status} ${response.statusText}`)}`)
       return false
     }
     if (this.option.log) {
-      logger.mark(`[米游社接口][${type}][${this.uid}] ${Date.now() - start}ms`)
+      logger.mark(`${chalk.rgb(255, 225, 255)(`[小可][米游社接口][${type}][${this.uid}] ${Date.now() - start}ms`)}`)
     }
     const res = await response.json()
 
     if (!res) {
-      logger.mark('mys接口没有返回')
+      logger.mark(`${chalk.rgb(60, 159, 240)(`[小可]mys接口没有返回`)}`)
       return false
     }
 
@@ -232,7 +233,7 @@ export default class MysApi {
 
     if (HttpsProxyAgent === '') {
       HttpsProxyAgent = await import('https-proxy-agent').catch((err) => {
-        logger.error(err)
+      logger.error(`${chalk.rgb(240, 75, 60)(`[小可]` + err)}`)
       })
 
       HttpsProxyAgent = HttpsProxyAgent ? HttpsProxyAgent.HttpsProxyAgent : undefined

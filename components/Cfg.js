@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import lodash from 'lodash'
-import cfgData from './cfg/CfgData.js'
 import { Version } from '#xk'
 import { xkPath } from '#xk.path'
+import cfgData from './cfg/CfgData.js'
 
 const _cfgPath = `${xkPath}/components/`
 let cfg = {}

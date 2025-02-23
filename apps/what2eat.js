@@ -1,7 +1,7 @@
+import chalk from 'chalk'
 import lodash from 'lodash'
-import chalk from "chalk"
-import plugin from '../../../lib/plugins/plugin.js'
 import basicFood from '../data/foods.js'
+import plugin from '../../../lib/plugins/plugin.js'
 
 export class what2eat extends plugin {
   constructor () {

@@ -1,9 +1,8 @@
-import AvatarUtil from './AvatarUtil.js'
 import lodash from 'lodash'
-import CharImg from '../character/CharImg.js'
-
-import Serv from '../serv/Serv.js'
 import { Cfg } from '#miao'
+import Serv from '../serv/Serv.js'
+import AvatarUtil from './AvatarUtil.js'
+import CharImg from '../character/CharImg.js'
 
 const ProfileAvatar = {
 
