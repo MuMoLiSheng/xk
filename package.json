@@ -9,10 +9,7 @@
     "#xk.models": "./models/index.js",
     "#xk.path": "./utils/path.js"
   },
-  "scripts": {
-        "test": "mocha --exit"
-  },
-  "module": "index.js",
+  "scripts": {},
   "license": "MIT",
   "dependencies": {
     "axios": "^0.27.2",
