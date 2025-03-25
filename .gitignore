@@ -6,6 +6,7 @@
 /components/setting.json
 /config.js
 *.css.map
+/data/images/
 /resources/character-img/*/upload/
 /resources/help/help-list.js
 /resources/help/help-cfg.js

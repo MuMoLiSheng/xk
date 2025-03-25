@@ -3,9 +3,9 @@ import fs from 'node:fs'
 import chalk from 'chalk'
 import { MysInfo } from '#xk'
 import { Restart } from '../../other/restart.js'
-import ProfileList from '../models/copy/ProfileList.js'
 import { Character } from '../../miao-plugin/models/index.js'
 import { Format } from '../../miao-plugin/components/index.js'
+import ProfileList from '../../miao-plugin/apps/profile/ProfileList.js'
 import { getTargetUid } from '../../miao-plugin/apps/profile/ProfileCommon.js'
 import gs  from '../../miao-plugin/models/serv/api/MysPanelData.js'
 import sr from '../../miao-plugin/models/serv/api/MysPanelHSRData.js'
@@ -52,13 +52,13 @@ export class mysmb extends plugin {
         let res, data
         if (e.game=='gs') {
             logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
-            await e.reply(`[米游社]正在获取uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
+            await e.reply(`[米游社]正在获取“原神”uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
             res = await MysInfo.get(e, 'character', {
                 headers
             })
             if (!res.data) {
                 logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`${e.game === 'sr' ? `“星铁”` : `“原神”`}UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
+                await e.reply(`“星铁”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
                 return false
             }
             let ids = []
@@ -70,20 +70,20 @@ export class mysmb extends plugin {
             })
             if (!data.data) {
                 logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`${e.game === 'sr' ? `“星铁”` : `“原神”`}UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
+                await e.reply(`“原神”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
                 return false
             }
             await this.gs_mys(e, data, uid)
             /*星铁*/
         } else if(e.game=='sr'){
             logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
-            await e.reply(`[米游社]正在获取uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
+            await e.reply(`[米游社]正在“星铁”获取uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
             data = await MysInfo.get(this.e, 'avatarInfo', {
                 headers
             })
             if (!data.data) {
                 logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`${e.game === 'sr' ? `“星铁”` : `“原神”`}UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
+                await e.reply(`“星铁”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
                 return false
             }
             await this.sr_mys(e, data, uid)
@@ -91,10 +91,13 @@ export class mysmb extends plugin {
         return false
         }
         //加载面板列表图
-        await ProfileList.reload(e)
+        await ProfileList.refreshMys(e)
         return true
 
     }
+
+
+
     /*原神*/
     async gs_mys(e,data, uid) {
         let avatars = {}

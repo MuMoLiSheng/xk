@@ -1,5 +1,9 @@
+import fs from 'fs'
+import path from 'path'
+import axios from 'axios'
 import chalk from 'chalk'
 import { dirname } from 'path'
+import { xkPath } from '#xk.path'
 import puppeteer from 'puppeteer'
 import { fileURLToPath } from 'url'
 import plugin from '../../../lib/plugins/plugin.js'
@@ -148,7 +152,7 @@ async function generateFortune (e) {
         <p >${fortune.signText}</p>
         <p >${fortune.unsignText}</p>
       </div>
-      <p>${isReData.isRe === false ? '今日还可以悔签1次': '异象骤生，运势竟然改变了……'}</p>
+      <p>${isReData.isRe === false ? '今日还可以悔签1次': '今日已悔签'}</p>
       <p>| 相信科学，请勿迷信 |</p>
       <p>Create By 可歌岁月 </p>
     </div>
@@ -170,5 +174,53 @@ async function generateFortune (e) {
     if (browser) {
       await browser.close()
     }
+  }
+
+  // 下载图片并保存到本地
+  async function downloadImage(imageUrl, savePath) {
+    try {
+      const response = await axios({
+        url: imageUrl,
+        method: 'GET',
+        responseType: 'stream'
+      })
+
+      const writer = fs.createWriteStream(savePath)
+
+      response.data.pipe(writer)
+
+      return new Promise((resolve, reject) => {
+        writer.on('finish', resolve)
+        writer.on('error', reject)
+      })
+    } catch (error) {
+      console.error(`${chalk.rgb(240, 75, 60)(`[小可][御神签]下载图片失败：`)}`, error)
+      throw error
+    }
+  }
+  // 创建保存路径
+  const saveDir = path.join(`${xkPath}/data/images`)
+  if (!fs.existsSync(saveDir)) {
+    fs.mkdirSync(saveDir, { recursive: true })
+  }
+  const savePath = path.join(saveDir, `${Date.now()}.png`) // 使用时间戳命名
+
+  try {
+    // 下载并保存图片
+    await downloadImage(imageUrl, savePath)
+    console.log(`${chalk.rgb(255, 225, 255)(`[小可][御神签]图片已保存到：${savePath}`)}`)
+    // 自动删除图片
+    const deleteAfter = 3 * 60 * 60 * 1000 // 3小时后的毫秒数
+    setTimeout(() => {
+      fs.unlink(savePath, (err) => {
+        if (err) {
+          console.error(`${chalk.rgb(240, 75, 60)(`[小可][御神签]删除图片失败：${savePath}`)}`, err)
+        } else {
+          console.log(`${chalk.rgb(255, 225, 255)(`[小可][御神签]图片已删除：${savePath}`)}`)
+        }
+      })
+    }, deleteAfter)
+  } catch (error) {
+    console.error(`${chalk.rgb(240, 75, 60)(`[小可][御神签]保存图片失败：`)})`, error)
   }
 }
