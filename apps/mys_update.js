@@ -34,6 +34,7 @@ export class mysmb extends plugin {
         let User = await MysInfo.get(e, 'UserGame', {}, {}, true)
         if (User?.retcode !== 0) return false
         let uid = await MysInfo.getUid(e, false)
+        if (!uid) return e.reply(`你还未绑定${e.game === 'sr' ? `“星铁”` :`“原神”` }UID，请先发送：${e.game === 'sr' ? `【*绑定+你的星铁UID】或【#星铁绑定+你的UID】` :`【#绑定+你的UID】` }以此来绑定你的${e.game === 'sr' ? `“星铁”` :`“原神”` }查询目标，绑定完成后 请发送${e.game === 'sr' ? `【*更新面板】` :`【#更新面板】` }以此更新你的${e.game === 'sr' ? `“星铁”` :`“原神”` }角色详情\n如需查看其它功能绑定ck请使用：${e.game === 'sr' ? `【*扫码登录】` :`【#扫码登录】` }注意是用「米游社」扫码\n如需使用其它功能可使用【可可帮助】【#帮助】【*帮助】【#喵喵帮助】等查看可用功能`,false, { at: true })
         logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
         await e.reply(`[米游社]正在获取“${e.game === 'sr' ? `星铁` : `原神`}”uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
         let device_fp = await MysInfo.get(e, 'getFp', {}, {}, true)

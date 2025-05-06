@@ -327,19 +327,17 @@ export default class MysInfo {
     return false
   }
 
-  async checkReply () {
+  async checkReply (uid, game = 'sr') {
     if (this.e.noTips === true) return
 
     if (!this.uid) {
-      this.e.reply(['请先#绑定uid', segment.button([
-        { text: '绑定UID', input: '#绑定uid' }
-      ])], false, { at: true })
+      logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败，用户未绑定uid。`)}`)
+      this.e.reply`你还未绑定${game === 'sr' ? `“星铁”` :`“原神”` }UID，请先发送：${game === 'sr' ? `【*绑定+你的星铁UID】或【#星铁绑定+你的UID】` :`【#绑定+你的UID】` }以此来绑定你的${game === 'sr' ? `“星铁”` :`“原神”` }查询目标，绑定完成后 请发送${game === 'sr' ? `【*更新面板】` :`【#更新面板】` }以此更新你的${game === 'sr' ? `“星铁”` :`“原神”` }角色详情\n如需查看其它功能绑定ck请使用：${game === 'sr' ? `【*扫码登录】` :`【#扫码登录】` }注意是用「米游社」扫码\n如需使用其它功能可使用【可可帮助】【#帮助】【*帮助】【#喵喵帮助】等查看可用功能。`,false, { at: true }
     }
 
     if (!this.ckInfo.ck) {
-      this.e.reply(['暂无可用CK，请绑定更多用户或设置公共ck..', segment.button([
-        { text: 'Cookie帮助', callback: '#Cookie帮助' }
-      ])])
+      logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败，用户未绑定ck。`)}`)
+      this.e.reply(`[米游社]${game === `sr` ? `“星铁”` : `“原神”`}UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...\n或者使用【*米游社更新面板】调用喵喵自带的米游社更新服务。`,false ,{ at: true})
     }
 
     this.e.noTips = true
