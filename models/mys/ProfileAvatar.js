@@ -19,7 +19,7 @@ const ProfileAvatar = {
    * @param force
    * @returns {Promise<boolean|number>}
    */
-  async refreshProfile (player, force = 2) {
+  async refreshProfile (player, force = 2, fromMys = false) {
     if (!AvatarUtil.needRefresh(player._profile, force, { 0: 24, 1: 2, 2: 0 })) {
       return false
     }
@@ -27,7 +27,7 @@ const ProfileAvatar = {
     if (![9, 10].includes(uid.toString().length) || !e) {
       return false
     }
-    let ret = await Serv.req(e, player)
+    let ret = await Serv.req(e, player, fromMys)
     if (ret) {
       player._profile = new Date() * 1
       player.save()
@@ -39,13 +39,8 @@ const ProfileAvatar = {
     if (avatar.isSr) {
       return true
     }
-    
-    
-    
-    
-    
-    // 检查数据源//改
-    if (!avatar._source || !['enka', 'change', 'miao', 'mgg', 'hutao', 'homo', 'mysPanel','mys'].includes(avatar._source)) {
+    // 检查数据源
+    if (!avatar._source || !['enka', 'change', 'miao', 'mgg', 'hutao', 'homo', 'mysPanel', 'mys'].includes(avatar._source)) {
       return false
     }
     // 检查武器及天赋
@@ -79,15 +74,11 @@ const ProfileAvatar = {
     let isSuper = false
     let talent = profile.talent ? lodash.map(profile.talent, (ds) => ds.original).join('') : ''
     let isGs = game === 'gs'
-    if (isGs && (
-      profile.cons === 6 ||
-      ['ACE', 'MAX'].includes(profile.artis?.markClass) ||
-      talent === '101010'
-    )) {
+    if (isGs && (profile.cons === 6 || ['ACE', 'MAX'].includes(profile.artis?.markClass) || talent === '101010')) {
       isSuper = true
     }
 
-    let treeSet = ['101', '102', '103', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210']
+    let treeSet = ['101', '102', '103', '201', '203', '205', '207', '210', '202', '206', '209', '204', '208']
     let treeSuper = false
     if (!isGs && profile.trees) {
       treeSuper = true
@@ -97,11 +88,7 @@ const ProfileAvatar = {
         }
       })
     }
-    if (!isGs && (
-      profile.cons === 6 ||
-      ['ACE', 'MAX'].includes(profile.artis?.markClass) ||
-      (talent === '6101010' && treeSuper)
-    )) {
+    if (!isGs && (profile.cons === 6 || ['ACE', 'MAX'].includes(profile.artis?.markClass) || (talent === '6101010' && treeSuper))) {
       isSuper = true
     }
     // 特殊处理开拓者的情况
@@ -110,11 +97,13 @@ const ProfileAvatar = {
         case 8001:
         case 8003:
         case 8005:
+        case 8007:
           name = '穹'
           break
         case 8002:
         case 8004:
         case 8006:
+        case 8008:
           name = '星'
           break
       }

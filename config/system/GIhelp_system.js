@@ -9,7 +9,7 @@
 export const helpCfg = {
     themeSet: true,
     title: 'Genshin Impact-Help',
-    subTitle: '归云梦提醒：这里是原神功能，星铁功能请发送命令[*帮助]，鸣潮功能请发送命令[~帮助]，方舟功能请发送命令[#方舟帮助]，更多功能请发送命令[可可帮助]',
+    subTitle: '云梦提醒：这里是原神功能，星铁功能请发送命令[*帮助]，鸣潮功能请发送命令[~帮助]，方舟功能请发送命令[#方舟帮助]，更多功能请发送命令[可可帮助]',
     columnCount: 3,
     colWidth: 395,
     theme: ['shaonv1'],

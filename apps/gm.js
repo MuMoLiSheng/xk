@@ -6,8 +6,20 @@ import setting from "../models/setting.js"
 import common from "../../../lib/common/common.js"
 import plugin from "../../../lib/plugins/plugin.js"
 
-let textArr = {}
+/** 主人（Master）
+ * @param {*} Master - 主人和云梦QQ号
+ * @description
+ * 需自行添加后重启
+ */
+let Master = []
+/** 各群群管理员（admin）
+ * @param {*} admin - 各群群管理QQ号
+ * @description
+ * 需自行添加后重启
+ */
+let admin = []
 
+let textArr = {}
 let gmSetFile = "./plugins/xk/config/gm.set.yaml"
 if (!fs.existsSync(gmSetFile)) {
   fs.copyFileSync("./plugins/xk/defSet/gm/set.yaml", gmSetFile)
@@ -24,15 +36,7 @@ export class gm extends plugin {
         {
           reg: "^(戳|撤|禁|踢)+\\s*[0-9]*$",
           fnc: "shortcuts",
-        },
-        {
-          reg: "^#*快管删除(.*)$",
-          fnc: "shortcutsdel",
-        },
-        {
-          reg: "^#*快管列表$",
-          fnc: "shortcutslist",
-        },
+        }
       ],
     })
     this.path = "./data/shortcutsJson/"
@@ -48,34 +52,28 @@ export class gm extends plugin {
 
   async accept() {
     if (!this.e.message) return false
-
     if (!this.e.isGroup) return false
-
     await this.getGroupId()
-
     if (!this.group_id) return false
-
     this.initTextArr()
-
     let keyword = this.getKeyWord(this.e)
-
     // 检查是否@了用户
     let atUser = this.checkAtUser(this.e.message.text)
-
     let msg = textArr[this.group_id].get(keyword) || ""
-
     const time = msg.replace(/(戳|撤|禁|踢)+\s*/g, "") || 0
     if (lodash.isEmpty(msg)) return false
-
+    let uid = this.e.source.user_id
     if (atUser && (this.e.group.is_admin || this.e.isMaster)) {
       this.executeAction(msg, atUser)
     } else if (this.e.group.is_admin) {
       if (msg && msg.indexOf("禁") !== -1) {
+        if (!Master.includes(uid) && !admin.includes(uid) && uid != this.e.sender.user_id || this.e.isMaster) {
         let duration = Math.floor(Math.random() * 600) + 1
         if (time) {
           duration = time * 60
         }
         this.e.group.muteMember(this.e.sender.user_id, duration)
+      }
       } else if (msg && msg.indexOf("踢") !== -1 && this.e.isMaster) {
         setTimeout(async () => {
           this.e.group.recallMsg(this.e.seq)
@@ -89,14 +87,12 @@ export class gm extends plugin {
           time * 1000
         )
       }
-    } else {
-      if (msg.indexOf("撤") !== -1 && this.e.sender.user_id == Bot.uin) {
+    } else if (msg.indexOf("撤") !== -1) {
         setTimeout(
           () => this.e.group.recallMsg(this.e.seq, this.e.rand),
           time * 1000
         )
       }
-    }
     if (msg.indexOf("戳") !== -1) {
       setTimeout(
         () => this.e.group.pokeMember(this.e.sender.user_id),
@@ -117,7 +113,6 @@ export class gm extends plugin {
       return this.checkAtUser(message.text)
     }
   }
-
   
   /**
    * 执行禁言等操作。
@@ -159,39 +154,62 @@ export class gm extends plugin {
 
     if (this.e.source) {
       let msg = (await this.e.group.getChatHistory(this.e.source.seq, 1)).pop()
-
+      let uid = this.e.source.user_id
       const time = this.e.msg.replace(/(戳|撤|禁|踢|禁撤)+\s*/g, "") || 0
-
       if (this.e.group.is_admin) {
         if (this.e.msg.indexOf("禁撤") !== -1) {
+          if (!Master.includes(uid) && !admin.includes(uid) && uid != this.e.sender.user_id || this.e.isMaster) {
           this.e.group.recallMsg(this.e.source.seq)
           await common.sleep(600)
           let duration = Math.floor(Math.random() * 600) + 1
-          if (time) {
-            duration = time
-          }
+          if (time) { duration = time }
           let days = Math.floor(duration / (24 * 60 * 60))
           let hours = Math.floor((duration % (24 * 60 * 60)) / 3600)
           let minutes = Math.floor((duration % 3600) / 60)
           let seconds = duration % 60
-          let durationStr = `${days ? `${days}天` : ``}${hours ? `${hours}小时` : ``}${minutes ? `${minutes}分钟` : ``}${seconds}秒`
-          
+          let durationStr = days >= 30 ? `最多只能是30天00小时00分00秒` : seconds < 60 && days === 0 && hours === 0 && minutes === 0 ? `最少只能是01分钟00秒` : `${days ? `${days}天` : ''}${hours ? `${hours}小时` : ''}${minutes ? `${minutes}分钟` : ''}${seconds ? `${seconds}秒` : ''}`
           this.e.group.muteMember(this.e.source.user_id, duration)
-          this.e.reply([segment.at(this.e.source.user_id),`\n你被禁言+撤回此消息，${duration = time ? `指定的时长为：${durationStr}。` : `未指定禁言时长，将自动在1-10分钟内随机生成禁言时长，\n随机到的禁言时长为：${durationStr}。` }`])
-         } else if (this.e.msg.indexOf("禁") !== -1) {
+          this.e.reply([segment.at(this.e.source.user_id),`\n✅ 你被${this.e.nickname}禁言+撤回此消息，${duration = time ? `指定的时长为：${durationStr}。` : `未指定禁言时长，将自动在1-10分钟内随机生成禁言时长，\n随机到的禁言时长为：${durationStr}。` }`])
+          } else if (!Master.includes(uid) && !admin.includes(uid)) {
+            this.e.reply([segment.at(uid), `❎ 该命令仅限管理可用。`])
+          } else if (Master.includes(uid)) {
+            this.e.reply([segment.at(this.e.sender.user_id),`❎ 你无权禁言云梦以及她的主人以及撤回她的消息。`])
+          } else if (admin.includes(uid)) {
+            this.e.reply([segment.at(this.e.sender.user_id),`❎ 你无权禁言群管理员以及撤回她的消息。`])
+          } else if (uid == this.e.sender.user_id) {
+            this.e.reply([segment.at(uid),`❎ 你无权禁言自己以及撤回自己的消息。`])
+          }
+        } else if (this.e.msg.indexOf("禁") !== -1) {
+        if (!Master.includes(uid) && !admin.includes(uid) && uid != this.e.sender.user_id || this.e.isMaster) {
           let duration = Math.floor(Math.random() * 600) + 1
-          if (time) {
-            duration = time
-          }
+          if (time) { duration = time }
           let days = Math.floor(duration / (24 * 60 * 60))
           let hours = Math.floor((duration % (24 * 60 * 60)) / 3600)
           let minutes = Math.floor((duration % 3600) / 60)
           let seconds = duration % 60
-          let durationStr = days >= 30 ? `30天00小时00分00秒` : `${days ? `${days}天` : ''}${hours ? `${hours}小时` : ''}${minutes ? `${minutes}分钟` : ''}${seconds}秒`
-          
+          let durationStr = days >= 30 ? `最多只能是30天00小时00分00秒` : seconds < 60 && days === 0 && hours === 0 && minutes === 0 ? `最少只能是01分钟00秒` : `${days ? `${days}天` : ''}${hours ? `${hours}小时` : ''}${minutes ? `${minutes}分钟` : ''}${seconds ? `${seconds}秒` : ''}`
           this.e.group.muteMember(this.e.source.user_id, duration)
-          this.e.reply([segment.at(this.e.source.user_id),`\n你被禁言，${duration = time ? `指定的时长为：${durationStr}。` : `未指定禁言时长，将自动在1-10分钟内随机生成禁言时长，\n随机到的禁言时长为：${durationStr}。` }`])
-         } else if (this.e.msg.indexOf("踢") !== -1 && this.e.isMaster) {
+          this.e.reply([segment.at(this.e.source.user_id),`\n✅ 你被${this.e.nickname}禁言，${duration = time ? `指定的时长为：${durationStr}。` : `未指定禁言时长，将自动在1-10分钟内随机生成禁言时长，\n随机到的禁言时长为：${durationStr}。` }`])
+          } else if (!Master.includes(uid) && !admin.includes(uid)) {
+            this.e.reply([segment.at(uid), `❎ 该命令仅限管理可用。`])
+          } else if (Master.includes(uid)) {
+            this.e.reply([segment.at(this.e.sender.user_id),`❎ 你无权禁言云梦以及她的主人。`])
+          } else if (uid === 3224023700) {
+            let duration = Math.floor(Math.random() * 600) + 1
+            if (time) { duration = time }
+            let days = Math.floor(duration / (24 * 60 * 60))
+            let hours = Math.floor((duration % (24 * 60 * 60)) / 3600)
+            let minutes = Math.floor((duration % 3600) / 60)
+            let seconds = duration % 60
+            let durationStr = days >= 30 ? `最多只能是30天00小时00分00秒` : seconds < 60 && days === 0 && hours === 0 && minutes === 0 ? `最少只能是01分钟00秒` : `${days ? `${days}天` : ''}${hours ? `${hours}小时` : ''}${minutes ? `${minutes}分钟` : ''}${seconds ? `${seconds}秒` : ''}`
+            this.e.group.muteMember(this.e.source.user_id, duration)
+            this.e.reply([segment.at(this.e.source.user_id),`\n${this.e.nickname}被禁言，${duration = time ? `指定的时长为：${durationStr}。` : `未指定禁言时长，将自动在1-10分钟内随机生成禁言时长，\n随机到的禁言时长为：${durationStr}。` }`])
+          } else if (admin.includes(uid)) {
+            this.e.reply([segment.at(this.e.sender.user_id),`❎ 你无权禁言群管理员。`])
+          } else if (uid == this.e.sender.user_id) {
+            this.e.reply([segment.at(uid),`❎ 你无权禁言你自己。`])
+          }
+        } else if (this.e.msg.indexOf("踢") !== -1 && this.e.isMaster) {
             setTimeout(async () => {
               this.e.group.recallMsg(this.e.source.seq)
               await common.sleep(600)
@@ -203,181 +221,25 @@ export class gm extends plugin {
             () => this.e.group.recallMsg(this.e.source.seq, this.e.source.rand),
             time * 1000
           )
+          this.e.reply(`✅ 已将对应消息撤回。`,true)
         }
       } else {
-        if (
-          this.e.msg.indexOf("撤") !== -1 &&
-          this.e.source.user_id == Bot.uin
-        ) {
+        if (this.e.msg.indexOf("撤") !== -1 && this.e.source.user_id == Bot.uin) {
           setTimeout(
             () => this.e.group.recallMsg(this.e.source.seq, this.e.source.rand),
             time * 1000
           )
+          this.e.reply(`✅ 已将对应消息撤回。`,true)
         }
+        this.e.reply(`❎ 格式错误，请回复对应消息并发送 撤|禁|禁撤|踢 以进行对应操作。`,true, { at: true })
       }
-
       if (this.e.msg.indexOf("戳") !== -1) {
         setTimeout(
           () => this.e.group.pokeMember(this.e.source.user_id),
           time * 1000
         )
       }
-
-      const isSave =
-        this.e.msg.replace(/\s*[0-9]*/g, "").length > 1 &&
-        new Set(this.e.msg.replace(/\s*[0-9]*/g, "").split("")).size == 1
-
-      if (isSave) {
-        const keyword = this.getKeyWord(msg)
-
-        if (!textArr[this.group_id]) textArr[this.group_id] = new Map()
-
-        textArr[this.group_id].set(
-          keyword,
-          this.e.msg.split("")[0] + this.e.msg.replace(/(戳|撤|禁|踢)+/g, "")
-        )
-
-        this.saveJson()
-
-        this.e.reply(
-          "已完成操作并添加到快管列表，可以通过 #快管列表 查看已经添加的记录"
-        )
-      }
     }
-  }
-
-  async shortcutsdel() {
-    if (!this.checkAuth()) return
-    await this.getGroupId()
-    if (!this.group_id) return false
-
-    this.initTextArr()
-
-    let keyWord = this.getKeyWord(this.e).replace(/#|\n|＃|快管删除/g, "")
-
-    let temp = textArr[this.group_id].get(keyWord)
-
-    if (!temp) {
-      await this.e.reply("未找到要删除的快管记录")
-      return
-    }
-
-    if (textArr[this.group_id].has(keyWord)) {
-      textArr[this.group_id].delete(keyWord)
-    }
-
-    let retMsg = [{ type: "text", text: "删除成功：" }]
-    for (let msg of this.e.message) {
-      if (msg.type == "text") {
-        msg.text = msg.text.replace(/#|＃|快管删除/g, "")
-
-        if (!msg.text) continue
-      }
-      retMsg.push(msg)
-    }
-
-    await this.e.reply(retMsg)
-
-    /** 删除图片 */
-    let img = temp
-    if (Array.isArray(temp)) {
-      img = item[0]
-    }
-    if (img && img.local) {
-      fs.unlink(img.local, () => {})
-    }
-
-    this.saveJson()
-  }
-
-  async shortcutslist() {
-    let page = 1
-    let pageSize = 100
-    let type = "list"
-
-    await this.getGroupId()
-    if (!this.group_id) return false
-
-    this.initTextArr()
-
-    let search = this.e.msg.replace(/#|＃|快管/g, "")
-
-    if (search.includes("列表")) {
-      page = search.replace(/列表/g, "") || 1
-    } else {
-      type = "search"
-    }
-
-    let list = textArr[this.group_id]
-
-    if (lodash.isEmpty(list)) {
-      await this.e.reply("暂无快管数据")
-      return
-    }
-
-    let arr = []
-    for (let [k, v] of textArr[this.group_id]) {
-      if (type == "list") {
-        arr.push({ key: k, val: v, num: arr.length + 1 })
-      } else if (k.includes(search)) {
-        /** 搜索快管 */
-        arr.push({ key: k, val: v, num: arr.length + 1 })
-      }
-    }
-
-    let count = arr.length
-    arr = arr.reverse()
-
-    if (type == "list") {
-      arr = this.pagination(page, pageSize, arr)
-    }
-
-    if (lodash.isEmpty(arr)) {
-      return
-    }
-
-    let msg = []
-    let num = 0
-    for (let i in arr) {
-      if (num >= page * pageSize) break
-
-      let keyWord = await this.keyWordTran(arr[i].key)
-      if (!keyWord) continue
-
-      // if (Array.isArray(keyWord)) {
-      //   keyWord.unshift(`${arr[i].num}、`)
-      //   keyWord.push("\n")
-      //   keyWord.forEach((v) => msg.push(v))
-      // } else
-      if (keyWord.type == "image") {
-        msg.push(
-          `\n${arr[i].num}、`,
-          keyWord,
-          `\n执行操作：[${arr[i].val}]`,
-          `\n删除代码：#快管删除${arr[i].key}`,
-          "\n\n"
-        )
-      } else if (keyWord.type) {
-        msg.push(`\n${arr[i].num}、`, keyWord, `[${arr[i].val}]`, "\n\n")
-      } else {
-        msg.push(`${arr[i].num}、${keyWord}[${arr[i].val}]\n`)
-      }
-      num++
-    }
-
-    let end = ""
-    if (type == "list" && count > 100) {
-      end = `更多内容请翻页查看\n如：#快管列表${Number(page) + 1}`
-    }
-
-    let title = `快管列表，第${page}页，共${count}条`
-    if (type == "search") {
-      title = `快管${search}，${count}条`
-    }
-
-    let forwardMsg = await this.makeForwardMsg(Bot.uin, title, msg, end)
-
-    this.e.reply(forwardMsg)
   }
 
   checkAuth() {
@@ -392,7 +254,7 @@ export class gm extends plugin {
 
     if (
       this.gmSetData.shortcutsPermission == "admin" &&
-      (this.e.member.is_owner || this.e.isMaster || this.e.member.is_admin  || ALL)
+      (this.e.member.is_owner || this.e.isMaster || this.e.member.is_admin || ALL)
     ) {
       return true
     }
@@ -561,14 +423,12 @@ export class gm extends plugin {
       redis.setEx(this.grpKey, 3600 * 24 * 30, String(this.group_id))
       return this.group_id
     }
-
     // redis获取
     let groupId = await redis.get(this.grpKey)
     if (groupId) {
       this.group_id = groupId
       return this.group_id
     }
-
     return false
   }
 }

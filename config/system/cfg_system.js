@@ -6,18 +6,18 @@ export const cfgSchema = {
         title: '#帮助 #菜单',
         key: '帮助',
         def: false,
-        xk: false
+        xk: true
       },
       SRhelp: {
         title: '*帮助 *星铁帮助',
         key: '星铁帮助',
-        def: true,
+        def: false,
         xk: true
       },
       GIhelp: {
         title: '#帮助 #原神帮助',
         key: '原神帮助',
-        def: true,
+        def: false,
         xk: true
       }
     }

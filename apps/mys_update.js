@@ -2,35 +2,25 @@
 import fs from 'node:fs'
 import chalk from 'chalk'
 import { MysInfo } from '#xk'
+import { ProfileList } from '#xk'
 import { Restart } from '../../other/restart.js'
 import { Character } from '../../miao-plugin/models/index.js'
 import { Format } from '../../miao-plugin/components/index.js'
-import ProfileList from '../../miao-plugin/apps/profile/ProfileList.js'
-import { getTargetUid } from '../../miao-plugin/apps/profile/ProfileCommon.js'
 import gs  from '../../miao-plugin/models/serv/api/MysPanelData.js'
 import sr from '../../miao-plugin/models/serv/api/MysPanelHSRData.js'
-
 
 export class mysmb extends plugin {
     constructor() {
         super({
-            /** 功能名称 */
             name: `${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`,
-            /** 功能描述 */
             dsc: '米游社获取原神、星铁角色详情',
-            /** https://oicqjs.github.io/oicq/#events */
             event: 'message',
-            /** 优先级，数字越小等级越高 */
             priority: -1314520,
             rule: [{
-                /** 命令正则匹配 */
                 reg: /^#(星铁|原神)?(xk)?(全部面板更新|更新全部面板|获取游戏角色详情|更新面板|面板更新)$/,
-                /** 执行方法 */
                 fnc: 'mys'
             }, {
-                /** 命令正则匹配 */
                 reg: '^#?小可面板文件(替换|还原)$',
-                /** 执行方法 */
                 fnc: 'mbwj'
             }, ]
         })
@@ -38,68 +28,48 @@ export class mysmb extends plugin {
     async mys(e) {
        if(!fs.existsSync('./plugins/xk/models/default/ProfileAvatar_copy.js')){
             if (!e.isMaster) return false
-            e.reply('首次使用该功能，需要修改喵佬的models/avatar/ProfileAvatar.js文件,请发送：小可面板文件替换\n\n后续更新miao-plugin，如果因为该文件引发冲突，可使用:小可面板文件还原')
+            logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]首次使用该功能，需要修改喵佬的models/avatar/ProfileAvatar.js文件,请发送：小可面板文件替换\n\n后续更新miao-plugin，如果因为该文件引发冲突，可使用:小可面板文件还原`)}`)
             return false
         }
-        /*原神*/
-        if (!e.game) e.game = 'gs'
-        let uid = await getTargetUid(e) 
-        if (!uid) return e.reply(`你还未绑定${player.game === 'sr' ? `“星铁”` :`“原神”` }UID，请先发送：${player.game === 'sr' ? `【*绑定+你的星铁UID】或【#星铁绑定+你的UID】` :`【#绑定+你的UID】` }以此来绑定你的${player.game === 'sr' ? `“星铁”` :`“原神”` }查询目标，绑定完成后 请发送${player.game === 'sr' ? `【*更新面板】` :`【#更新面板】` }以此更新你的${player.game === 'sr' ? `“星铁”` :`“原神”` }角色详情\n如需查看其它功能绑定ck请使用：${player.game === 'sr' ? `【*扫码登录】` :`【#扫码登录】` }注意是用「米游社」扫码\n如需使用其它功能可使用【可可帮助】【#帮助】【*帮助】【#喵喵帮助】等查看可用功能`, true)
-        let device_fp = await MysInfo.get(e, 'getFp')
-        let headers = {
-            'x-rpc-device_fp': device_fp?.data?.device_fp
-        }
+        let User = await MysInfo.get(e, 'UserGame', {}, {}, true)
+        if (User?.retcode !== 0) return false
+        let uid = await MysInfo.getUid(e, false)
+        logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
+        await e.reply(`[米游社]正在获取“${e.game === 'sr' ? `星铁` : `原神`}”uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
+        let device_fp = await MysInfo.get(e, 'getFp', {}, {}, true)
+        if (device_fp?.retcode !== 0) return false
+        let headers = { 'x-rpc-device_fp': device_fp?.data?.device_fp }
         let res, data
-        if (e.game=='gs') {
-            logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
-            await e.reply(`[米游社]正在获取“原神”uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
-            res = await MysInfo.get(e, 'character', {
-                headers
-            })
-            if (!res.data) {
+        if (e.game == 'sr') {
+            data = await MysInfo.get(e, 'avatarInfo', { headers }, {}, true)
+            if (!data.data) {
                 logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`“星铁”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
+                await e.reply(`“星铁”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...\n或者使用【*米游社更新面板】调用喵喵自带的米游社更新服务`,false ,{ at: true})
                 return false
             }
+            await this.sr_mys(e, data, uid)
+        } else if (e.game == 'gs') {
+            res = await MysInfo.get(e, 'character', { headers }, {}, true)
             let ids = []
             res.data.list.map((value) => {
                 ids.push(value.id)
             })
-            data = await MysInfo.get(e, 'character_detail', {
-                headers, ids: ids
-            })
-            if (!data.data) {
+            data = await MysInfo.get(e, 'character_detail', { headers, ids: ids }, {}, true)
+            if (!res.data || !data.data) {
                 logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`“原神”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
+                await e.reply(`“原神”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...\n或者使用【#米游社更新面板】调用喵喵自带的米游社更新服务`,false ,{ at: true})
                 return false
             }
             await this.gs_mys(e, data, uid)
-            /*星铁*/
-        } else if(e.game=='sr'){
-            logger.info(`${chalk.rgb(255, 225, 255)(`[小可]米游社更新面板`)}`)
-            await e.reply(`[米游社]正在“星铁”获取uid:${uid}的数据，可能会需要一定时间~`,false ,{ at: true})
-            data = await MysInfo.get(this.e, 'avatarInfo', {
-                headers
-            })
-            if (!data.data) {
-                logger.mark(`${chalk.rgb(244, 67, 67)(`[小可]米游社更新面板失败`)}`)
-                await e.reply(`“星铁”UID${uid}更新面板失败，当前面板服务米游社，\n可能是ck已失效或还未未绑定ck，正在尝试使用Enka面板服务获取数据，请稍后...`,false ,{ at: true})
-                return false
-            }
-            await this.sr_mys(e, data, uid)
-        }else{
-        return false
         }
         //加载面板列表图
-        await ProfileList.refreshMys(e)
-        return true
-
+        await ProfileList.render(e)
     }
 
 
 
     /*原神*/
-    async gs_mys(e,data, uid) {
+    async gs_mys(e, data, uid) {
         let avatars = {}
         this.property_map = data.data.property_map
         let path = `./data/PlayerData/gs/${uid}.json`
@@ -111,7 +81,7 @@ export class mysmb extends plugin {
             mb = JSON.parse(fs.readFileSync(path, 'utf8'))
         }
         data.data.list.map((v) => {
-            let va = v.base
+            var va = v.base
             //武器
             let weapon = gs.getWeapon(v.weapon)
             //命座影响天赋
@@ -147,7 +117,7 @@ export class mysmb extends plugin {
 
 
     /*星铁*/
-    async sr_mys(e,data, uid) {
+    async sr_mys(e, data, uid) {
         let avatars = {}
         this.property_info = data.data.property_info
         let path = `./data/PlayerData/sr/${uid}.json`
@@ -163,7 +133,43 @@ export class mysmb extends plugin {
             let weapon = v.equip ? sr.getWeapon(v.equip) : null
             //星魂影响
             let char = Character.get(v.id)
+            let servant = v.servant_detail.servant_skills
+            let a = v.skills[0].level
+            let e = v.skills[1].level
+            let q = v.skills[2].level
+            let t = v.skills[3].level
+            let me, mt
             let talent = sr.getTalent(char, v.rank, v.skills)
+            if (servant.length !== 0) {
+                me = servant[0].level
+                mt = servant[1].level
+            }
+            for (let x in char.talentCons) {
+                if ((v.rank > 4 && char.talentCons[x] == 5) || (v.rank > 2 && char.talentCons[x] == 3)) {
+                    if (servant.length !== 0) {
+                        switch (x) {
+                            case 'a':
+                                a = a - 1
+                                break
+                            case 'e':
+                                e = e - 2
+                                break
+                            case 'q':
+                                q = q - 2
+                                break
+                            case 't':
+                                t = t - 2
+                                break
+                            case 'me':
+                                me = me - 1
+                                break
+                            case 'mt':
+                                mt = mt - 1
+                                break
+                        }
+                    }
+                }
+            }
             //属性
             let elem = Format.elem()
             //行迹
@@ -176,7 +182,14 @@ export class mysmb extends plugin {
             'elem': elem,
             'level': v.level,
             'cons': v.rank,
-            'talent': talent,
+            'talent': servant.length !== 0 ? {
+                'a': a,
+                'e': e,
+                'q': q,
+                't': t,
+                'me': me,
+                'mt': mt
+            } : talent,
             'trees': trees,
             'weapon': weapon,
             'artis': artis,

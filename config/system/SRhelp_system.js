@@ -9,7 +9,7 @@
 export const helpCfg = {
     themeSet: true,
     title: 'Star Rail-Help',
-    subTitle: '归云梦提醒：这里是星铁功能，原神功能请发送命令[#帮助]，鸣潮功能请发送命令[~帮助]，方舟功能请发送命令[#方舟帮助]，更多功能请发送命令[可可帮助]',
+    subTitle: '云梦提醒：这里是星铁功能，原神功能请发送命令[#帮助]，鸣潮功能请发送命令[~帮助]，方舟功能请发送命令[#方舟帮助]，更多功能请发送命令[可可帮助]',
     columnCount: 3,
     colWidth: 395,
     theme: ['huahuo1'],
